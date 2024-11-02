@@ -9,10 +9,10 @@ artifact_buffer = {}
 artifact_dict = None
 artifact_dict_lock = asyncio.Lock()
 
-fields = ['id', 'token', 'name', 'content', 'created_at', 'modified_at']
+fields = ['id', 'token', 'title', 'content', 'created_at', 'modified_at']
 
 class Artifact:
-    def __init__(self, name: str, content: str):
+    def __init__(self, title: str, content: str):
         used_artifact = True
         while used_artifact:
             self.id = secrets.token_urlsafe(nbytes=4)
@@ -20,11 +20,22 @@ class Artifact:
         
         self.token = secrets.token_urlsafe(nbytes=16)
 
-        self.name = name
+        self.title = title
         self.content = content
 
-        self.created_at = int(datetime.datetime.now().timestamp())
-        self.modified_at = int(datetime.datetime.now().timestamp())
+        self.created_at = self.modified_at = int(datetime.datetime.now().timestamp())
+    
+
+    def edit(self, title: str=None, content: str=None):
+        if title is not None:
+            self.title = title
+        
+        if self.content is not None:
+            self.content = content
+        
+        if title is not None or content is not None:
+            self.modified_at = int(datetime.datetime.now().timestamp())
+
     
     def to_dict(self, fields: list[str]=fields):
         output = {}
@@ -46,7 +57,7 @@ class Artifact:
             if artifact_dict is None:
                 await Artifact.get_artifacts()
 
-            artifact_dict[self.id] = self.to_dict(['id', 'token', 'name', 'created_at', 'modified_at'])
+            artifact_dict[self.id] = self.to_dict(['id', 'token', 'title', 'created_at', 'modified_at'])
 
             async with artifact_dict_lock:
                 with open('artifacts/_artifact_dict.json', 'w') as f:
@@ -62,7 +73,7 @@ class Artifact:
             with open(f'artifacts/{id}.json', 'r') as f:
                 json_data = json.load(f)
             
-            a = cls(json_data['name'], json_data['content'])
+            a = cls(json_data['title'], json_data['content'])
 
             for f in fields:
                 a.__dict__[f] = json_data[f]

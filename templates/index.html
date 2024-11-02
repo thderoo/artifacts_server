@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>{{ title }}</title>
+
+        <style>
+            body, html {
+                margin: 0;
+                padding: 0;
+                height: 100%;
+                width: 100%;
+            }
+    
+            #fullscreen-frame {
+                height: 100vh;
+                width: 100vw;
+                border: none;
+            }
+        </style>
+    </head>
+    <body>
+        <iframe id="fullscreen-frame"></iframe>
+
+        <script>
+            const iframe = document.getElementById('fullscreen-frame');
+            const artifact_id = '{{ id }}';
+            const artifact_token = '{{ token }}';
+            let last_loaded = 0;
+            
+            const fetch_content = async () => {
+                let response = await fetch(
+                    `/artifacts/_${artifact_id}?token=${artifact_token}&only_modified_at`,
+                    {
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    }
+                );
+                
+                let json_data = await response.json();
+
+                if (json_data['modified_at'] > last_loaded) {
+                    response = await fetch(
+                        `/artifacts/_${artifact_id}?token=${artifact_token}`,
+                        {
+                            headers: {
+                                'Content-Type': 'application/json'
+                            }
+                        }
+                    );
+
+                    json_data = await response.json();
+                    iframe.srcdoc = json_data['content'];
+                    last_loaded = Date.now() / 1000;
+                }
+            }
+
+            fetch_content();
+            setInterval(fetch_content, 500);
+        </script>
+    </body>
+</html>

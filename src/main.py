@@ -1,6 +1,6 @@
 import asyncio
 
-from flask import Flask, request, abort, jsonify
+from flask import Flask, request, abort, jsonify, render_template
 
 from hypercorn.config import Config
 from hypercorn.asyncio import serve
@@ -8,17 +8,13 @@ from hypercorn.asyncio import serve
 from auth import requires_token
 from artifact import Artifact
 
-app = Flask(__name__)
+app = Flask(__name__, template_folder='../templates/')
 
 
 @app.route('/artifacts', methods=['POST'])
 @requires_token
 async def create_artifact():
     json_data = request.get_json()
-
-    for k in ['title', 'content']:
-        if k not in json_data:
-            abort(400, f'Missing required field {k}')
     
     a = Artifact(json_data['title'], json_data['content'])
     
@@ -35,26 +31,38 @@ async def get_artifact(id: str):
         if request.args['token'] == a.token:
             if request.content_type is not None:
                 if 'text/html' in request.content_type:
-                    return a.content
+                    return render_template('index.html', id=a.id, token=a.token, title=a.title)
                 elif 'application/json' in request.content_type:
-                    return jsonify(a.to_dict())
+                    if 'only_modified_at' in request.args:
+                        return jsonify(a.to_dict(['modified_at']))
+                    else:
+                        return jsonify(a.to_dict())
                 else:
                     return abort(400)
             else:
-                return a.content
+                return render_template('index.html', id=a.id, token=a.token, title=a.title)
         else:
             abort(401, 'Invalid token.')
     else:
         abort(401, 'Missing token.')
 
 
+@app.route('/artifacts/_<string:id>', methods=['POST'])
+@requires_token
+async def edit_artifact(id: str):
+    json_data = request.get_json()
+    
+    a = Artifact.load(id)
+    a.edit(**json_data)
+    await a.save()
+
+    return '', 200
+
+
 @app.route('/artifacts/list', methods=['GET'])
 @requires_token
 async def get_artifact_list():
-    if 'application/json' in request.content_type:
-        return jsonify(await Artifact.get_artifacts())
-    else:
-        return abort(400)
+    return jsonify(await Artifact.get_artifacts())
 
 
 if __name__ == '__main__':
