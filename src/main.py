@@ -67,7 +67,7 @@ async def get_artifact_list():
 
 if __name__ == '__main__':
     config = Config()
-    config.bind = ['0.0.0.0:8001']
+    config.bind = ['0.0.0.0:443']
     config.certfile = 'cert/cert.pem'
     config.keyfile = 'cert/key.pem'
 
