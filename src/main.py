@@ -1,4 +1,5 @@
 import asyncio
+import os
 
 from flask import Flask, request, abort, jsonify, render_template
 
@@ -70,5 +71,7 @@ if __name__ == '__main__':
     config.bind = ['0.0.0.0:443']
     config.certfile = 'cert/cert.pem'
     config.keyfile = 'cert/key.pem'
+
+    os.makedirs('artifacts', exit_ok=True)
 
     asyncio.run(serve(app, config))
