@@ -72,6 +72,6 @@ if __name__ == '__main__':
     config.certfile = 'cert/cert.pem'
     config.keyfile = 'cert/key.pem'
 
-    os.makedirs('artifacts', exit_ok=True)
+    os.makedirs('artifacts', exist_ok=True)
 
     asyncio.run(serve(app, config))
