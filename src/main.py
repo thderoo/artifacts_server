@@ -30,9 +30,11 @@ async def get_artifact(id: str):
     if 'token' in request.args:
         if request.args['token'] == a.token:
             if request.content_type is not None:
-                if 'text/html' in request.content_type:
+                best_match = request.accept_mimetypes.best_match(['text/html', 'application/json'])
+
+                if best_match == 'text/html':
                     return render_template('index.html', id=a.id, token=a.token, title=a.title)
-                elif 'application/json' in request.content_type:
+                elif best_match == 'application/json':
                     if 'only_modified_at' in request.args:
                         return jsonify(a.to_dict(['modified_at']))
                     else:
