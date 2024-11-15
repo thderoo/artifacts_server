@@ -32,7 +32,7 @@
                     `/artifacts/_${artifact_id}?token=${artifact_token}&only_modified_at`,
                     {
                         headers: {
-                            'Content-Type': 'application/json'
+                            'Accept': 'application/json;q=1.0'
                         }
                     }
                 );
@@ -44,7 +44,7 @@
                         `/artifacts/_${artifact_id}?token=${artifact_token}`,
                         {
                             headers: {
-                                'Content-Type': 'application/json'
+                                'Accept': 'application/json;q=1.0'
                             }
                         }
                     );
