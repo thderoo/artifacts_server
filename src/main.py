@@ -30,7 +30,7 @@ async def get_artifact(id: str):
 
     if 'token' in request.args:
         if request.args['token'] == a.token:
-            if request.content_type is not None:
+            if request.accept_mimetypes is not None:
                 best_match = request.accept_mimetypes.best_match(['text/html', 'application/json'])
 
                 if best_match == 'text/html':
