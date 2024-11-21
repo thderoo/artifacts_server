@@ -42,7 +42,12 @@ async def get_artifact(id: str):
                     if 'only_modified_at' in request.args:
                         return jsonify(a.to_dict(['modified_at']))
                     else:
-                        return jsonify(a.to_dict())
+                        json_artifact = a.to_dict()
+
+                        if 'rendered' in request.args:
+                            json_artifact['content'] = render_template('frame_content.html', content=json_artifact['content'])
+
+                        return jsonify(json_artifact)
                 else:
                     return abort(400)
             else:

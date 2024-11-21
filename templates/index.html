@@ -41,7 +41,7 @@
 
                 if (json_data['modified_at'] > last_loaded) {
                     response = await fetch(
-                        `/artifacts/_${artifact_id}?token=${artifact_token}`,
+                        `/artifacts/_${artifact_id}?token=${artifact_token}&rendered`,
                         {
                             headers: {
                                 'Accept': 'application/json;q=1.0'
